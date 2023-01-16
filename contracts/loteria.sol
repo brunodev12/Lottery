@@ -24,6 +24,16 @@ contract loteria is ERC20, Ownable {
     // Registro del usuario
     mapping(address => address) public usuario_contract;
 
+    // Precio de los tokens
+    function precioTokens(uint256 _numTokens) internal pure returns (uint256){
+        return _numTokens * (0.01 ether);
+    }
+
+    // Visualizacion del balance de tokens ERC-20 de un usuario
+    function balanceTokens(address _account) public view returns (uint256){
+        return balanceOf(_account);
+    }
+
 }
 
 contract mainERC721 is ERC721 {
