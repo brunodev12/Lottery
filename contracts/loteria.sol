@@ -34,6 +34,21 @@ contract loteria is ERC20, Ownable {
         return balanceOf(_account);
     }
 
+    // Visualizacion del balance de tokens ERC-20 del Smart Contract
+    function balanceTokensSC() public view returns (uint256){
+        return balanceOf(address(this));
+    }
+
+    // Visualización del balance de ethers del Smart Contract
+    function balanceEthersSC() public view returns (uint256){
+        return address(this).balance / 10**18;
+    }
+
+    // Generación de nuevos tokens Tokens ERC-20
+    function mint(uint256 _amount) public onlyOwner {
+        _mint(address(this), _amount);
+    }
+
 }
 
 contract mainERC721 is ERC721 {
