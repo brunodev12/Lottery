@@ -49,10 +49,24 @@ contract loteria is ERC20, Ownable {
         _mint(address(this), _amount);
     }
 
+    // Registro de usuarios
+    function registrar() internal {
+        address addr_personal_contract = address(new boletosNFTs(msg.sender, address(this), nft));
+        usuario_contract[msg.sender] = addr_personal_contract;
+    }
+
 }
 
 contract mainERC721 is ERC721 {
 
     constructor() ERC721("Loteria", "STE"){}
 
+}
+
+contract boletosNFTs {
+    
+    // Constructor del Smart Contract (hijo)
+    constructor(address _propietario, address _contratoPadre, address _contratoNFT){
+        //address owner = _propietario;
+    }
 }
