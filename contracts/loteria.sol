@@ -57,16 +57,37 @@ contract loteria is ERC20, Ownable {
 
 }
 
+// Smart Contract de NFTs
 contract mainERC721 is ERC721 {
 
     constructor() ERC721("Loteria", "STE"){}
+
+    // Creacion de NFTs
+    function safeMint(address _propietario, uint256 _boleto) public {
+        _safeMint(_propietario, _boleto);
+    } 
 
 }
 
 contract boletosNFTs {
     
+    // Datos relevantes del propietario
+    struct Owner {
+        address direccionPropietario;
+        address contratoPadre;
+        address contratoNFT;
+        address contratoUsuario;
+    }
+    // Estructura de datos de tipo Owner
+    Owner public propietario;
+
     // Constructor del Smart Contract (hijo)
     constructor(address _propietario, address _contratoPadre, address _contratoNFT){
-        //address owner = _propietario;
+        propietario = Owner(_propietario, _contratoPadre, _contratoNFT, address(this));
+    }
+
+    // Conversion de los numeros de los boletos de loteria
+    function mintBoleto(address _propietario, uint _boleto) public {
+        mainERC721(propietario.contratoNFT).safeMint(_propietario, _boleto);
     }
 }
