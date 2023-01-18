@@ -7,7 +7,9 @@ import "@openzeppelin/contracts@4.5.0/access/Ownable.sol";
 
 contract loteria is ERC20, Ownable {
 
+    // =========================================
     // Gestion de los tokens
+    // =========================================
 
     // Direccion del contrato NFT del proyecto
     address public nft;
@@ -93,6 +95,55 @@ contract loteria is ERC20, Ownable {
         payable(msg.sender).transfer(precioTokens(_numTokens));
     }
 
+    // =========================================
+    // Gestion de la loteria
+    // =========================================
+
+    // Precio del boleto de loteria (en tokens ERC-20)
+    uint public precioBoleto = 5;
+    // Relacion: persona que compra los boletos -> el numero de los boletos
+    mapping(address => uint []) idPersona_boletos;
+    // Relacion: boleto -> ganador
+    mapping(uint => address) ADNBoleto;
+    // Numero aleatorio
+    uint randNonce = 0;
+    // Boletos de la loteria generados
+    uint [] boletosComprados;
+
+    // Compra de boletos de loteria
+    function compraBoleto(uint _numBoletos) public {
+        // Precio total de los boletos a comprar
+        uint precioTotal = _numBoletos * precioBoleto;
+        // Verificacion de los tokens del usuario
+        require(precioTotal <= balanceTokens(msg.sender), "No tienes suficientes tokens");
+        // Transferencia de tokens del usuario al Smart Contract
+        _transfer(msg.sender, address(this), precioTotal);
+
+        /* Recoge la marca de tiempo (block.timestamp), msg.sender y un Nonce
+        (un numero que solo se utiliza una vez, para que no ejecutemos dos veces la misma
+        funcion de hash con los mismos parametros de entrada) en incremento.
+        Se utiliza 'keccak256' para convertir estas entradas en un hash aleatorio,
+        luego ese hash a un uint y por ultimo utilizamos '% 10000' para tomar los ultimos 4 digitos,
+        dando un valor aleatorio entre 0 - 9999. */
+
+        for (uint i = 0; i < _numBoletos; i++){
+            uint random = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % 10000;
+            randNonce++;
+            // Almacenamiento de los datos del boleto enlazados al usuario
+            idPersona_boletos[msg.sender].push(random);
+            // Almacenamiento de los datos de los boletos
+            boletosComprados.push(random);
+            // Asignacion del ADN del boleto para la generacion de un ganador
+            ADNBoleto[random] = msg.sender;
+            // Creacion de un nuevo NFT para el numero de boleto
+            boletosNFTs(usuario_contract[msg.sender]).mintBoleto(msg.sender, random);
+        }
+    }
+
+    // Visualizacion de los boletos del usuario
+    function tusBoletos(address _propietario) public view returns(uint [] memory){
+        return idPersona_boletos[_propietario];
+    }
 }
 
 // Smart Contract de NFTs
