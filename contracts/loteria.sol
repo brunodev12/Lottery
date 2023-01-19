@@ -144,6 +144,24 @@ contract loteria is ERC20, Ownable {
     function tusBoletos(address _propietario) public view returns(uint [] memory){
         return idPersona_boletos[_propietario];
     }
+
+    // Generacion del ganador de la loteria
+    function generarGanador() public onlyOwner {
+        // Declaracion de la longitud del array
+        uint longitud = boletosComprados.length;
+        // Verificacion de la compra de al menos 1 boleto
+        require(longitud > 0, "No hay boletos comprados");
+        // Eleccion aleatoria de un numero entre: [0-Longitud]
+        uint random = uint(uint(keccak256(abi.encodePacked(block.timestamp))) % longitud);
+        // Seleccion del numero aleatorio
+        uint eleccion = boletosComprados[random];
+        // Direccion del ganador de la loteria
+        ganador = ADNBoleto[eleccion];
+        // Envio del 95% del premio de loteria al ganador
+        payable(ganador).transfer(address(this).balance * 95 / 100);
+        // Envio del 5% del premio de loteria al owner
+        payable(owner()).transfer(address(this).balance * 5 / 100);
+    }
 }
 
 // Smart Contract de NFTs
